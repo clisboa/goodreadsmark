@@ -1,0 +1,34 @@
+version: "2"
+run:
+  timeout: 5m
+  build-tags:
+    - integration
+linters:
+  default: none
+  enable:
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - errcheck
+    - errorlint
+    - nilerr
+    - bodyclose
+    - sqlclosecheck
+    - rowserrcheck
+    - noctx
+    - containedctx
+    - durationcheck
+    - nolintlint
+  settings:
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - golines
+  settings:
+    golines:
+      max-len: 120

@@ -1,0 +1,26 @@
+[
+  {
+    "URL": "https://books.example/prefix",
+    "User": "123",
+    "Shelf": "to-read",
+    "Scope": "728c2fc3f6acaf22810c74b933d8dc91aed297802a8dc1081e257fdf282673a2"
+  },
+  {
+    "URL": "https://books.example/\u00e9t\u00e9",
+    "User": "123",
+    "Shelf": "to-read",
+    "Scope": "27065a45fdd7a95c1e2530b783b852b5557903dbd73da6831635480a3b238b75"
+  },
+  {
+    "URL": "https://books.example/\ud83d\udcda",
+    "User": "123",
+    "Shelf": "to-read",
+    "Scope": "7e250b0faa700127db963cbb13c3220e696a2ee630299958003d4ce6a5290126"
+  },
+  {
+    "URL": "https://books.example/a<&>",
+    "User": "123",
+    "Shelf": "to-read",
+    "Scope": "2a93c9228ba3196213bae341704743eec140874d14bc4092a1c464b763ffdfa0"
+  }
+]

@@ -1,0 +1,36 @@
+services:
+  goodreadsmark:
+    image: ${GOODREADSMARK_IMAGE:-ghcr.io/clisboa/goodreadsmark:0.3.1}
+    init: true
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 120s
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    environment:
+      GOODREADS_USER_ID: ${GOODREADS_USER_ID:?Set GOODREADS_USER_ID}
+      GOODREADS_SHELF: ${GOODREADS_SHELF:-to-read}
+      SHELFMARK_URL: ${SHELFMARK_URL:?Set SHELFMARK_URL}
+      SHELFMARK_API_KEY: ${SHELFMARK_API_KEY:-}
+      PREFERRED_FORMATS: ${PREFERRED_FORMATS:-epub,kepub}
+      PREFERRED_LANGUAGES: ${PREFERRED_LANGUAGES:-}
+      CONTENT_TYPE: ${CONTENT_TYPE:-ebook}
+      IMPORT_EXISTING: ${IMPORT_EXISTING:-true}
+      DRY_RUN: ${DRY_RUN:-true}
+      POLL_INTERVAL_MINUTES: ${POLL_INTERVAL_MINUTES:-30}
+      MAX_DOWNLOADS_PER_RUN: ${MAX_DOWNLOADS_PER_RUN:-3}
+      MAX_SEARCHES_PER_RUN: ${MAX_SEARCHES_PER_RUN:-20}
+      RETRY_INTERVAL_HOURS: ${RETRY_INTERVAL_HOURS:-24}
+      MAX_DOWNLOAD_ATTEMPTS: ${MAX_DOWNLOAD_ATTEMPTS:-3}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      STATE_DB: /data/goodreadsmark.sqlite
+    volumes:
+      - goodreadsmark-data:/data
+
+volumes:
+  goodreadsmark-data:

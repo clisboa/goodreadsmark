@@ -1,0 +1,29 @@
+# Replace every placeholder before installation. No credentials or real account data belong here.
+services:
+  goodreadsmark:
+    image: ghcr.io/clisboa/goodreadsmark:0.3.1
+    init: true
+    restart: unless-stopped
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 120s
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    environment:
+      GOODREADS_USER_ID: REPLACE_WITH_NUMERIC_ID
+      GOODREADS_SHELF: to-read
+      SHELFMARK_URL: https://shelfmark.example.com
+      SHELFMARK_API_KEY: ""
+      PREFERRED_FORMATS: epub,kepub
+      IMPORT_EXISTING: "true"
+      DRY_RUN: "true"
+      POLL_INTERVAL_MINUTES: "30"
+      MAX_DOWNLOADS_PER_RUN: "3"
+      MAX_SEARCHES_PER_RUN: "20"
+      STATE_DB: /data/goodreadsmark.sqlite
+    volumes:
+      - /mnt/POOL/apps/goodreadsmark:/data

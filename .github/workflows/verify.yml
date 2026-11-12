@@ -1,0 +1,95 @@
+name: Verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27.4"
+          cache: true
+      - run: go mod verify
+      - run: go mod tidy && git diff --exit-code -- go.mod go.sum
+      - run: test -z "$(gofmt -l cmd internal)"
+      - run: make test integration race vet build cross
+      - run: go test -tags=integration -coverprofile=coverage.out ./internal/app
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27.4"
+          cache: true
+      - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: v2.15.0
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27.4"
+          cache: true
+      - run: make vuln
+
+  privacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27.4"
+          cache: true
+      - run: make privacy
+      - name: Redacted secret scan of reachable public history
+        run: go run github.com/zricethezav/gitleaks/v8@v8.30.1 git --redact --no-banner --log-opts=--all .
+      - name: Validate workflow syntax
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+
+  container:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        if: matrix.arch == 'arm64'
+        with:
+          platforms: arm64
+      - run: docker compose --env-file .env.example config --quiet
+      - name: Build production and test-only targets
+        env:
+          PLATFORM: linux/${{ matrix.arch }}
+        run: |
+          docker build --target verify .
+          docker build --platform "$PLATFORM" --target final --tag goodreadsmark:ci .
+          docker build --platform "$PLATFORM" --target smoke --tag goodreadsmark:ci-smoke .
+      - name: Offline production-library verification
+        env:
+          PLATFORM: linux/${{ matrix.arch }}
+        run: bash scripts/container-smoke.sh goodreadsmark:ci goodreadsmark:ci-smoke "$PLATFORM"

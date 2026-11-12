@@ -1,0 +1,48 @@
+{
+  "source": "Synthetic data based on Shelfmark v1.6.2 tag 318b7483fe4087ee9a590bc1cd88fd2fe96ef8ce; core/queue_routes.py, core/activity_routes.py, download/orchestrator.py",
+  "status": {
+    "queued": {},
+    "resolving": {},
+    "locating": {},
+    "downloading": {
+      "abc": {
+        "id": "abc",
+        "source": "direct_download",
+        "status": "downloading",
+        "added_time": 1700000010
+      }
+    },
+    "complete": {},
+    "error": {},
+    "cancelled": {}
+  },
+  "snapshot": {
+    "status": {
+      "complete": {
+        "persisted": {
+          "id": "persisted",
+          "source": "prowlarr",
+          "added_time": 1700000000
+        }
+      }
+    },
+    "requests": [],
+    "dismissed": []
+  },
+  "history": [
+    {
+      "item_type": "download",
+      "item_key": "download:archived",
+      "source_id": "archived",
+      "final_status": "complete",
+      "snapshot": {
+        "kind": "download",
+        "download": {
+          "id": "archived",
+          "source": "direct_download",
+          "added_time": 1699990000
+        }
+      }
+    }
+  ]
+}
